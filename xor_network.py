@@ -1,104 +1,81 @@
 import math
 import random
+import json
 
-# ==========================================
-# 1. PHÉP TÍNH THỨ 5: HÀM KÍCH HOẠT PHI TUYẾN (SIGMOID)
-# ==========================================
-# Bẻ cong không gian và ép giá trị về khoảng [0, 1]
+# Hàm kích hoạt phi tuyến
 def sigmoid(x):
     return 1.0 / (1.0 + math.exp(-max(min(x, 500), -500)))
 
-# Đạo hàm của Sigmoid (để phục vụ phép TRỪ sai số khi học)
 def sigmoid_derivative(y):
     return y * (1.0 - y)
 
 # ==========================================
-# 2. KHỞI TẠO CẤU TRÚC 3 NƠ-RON
+# 1. KHỞI TẠO BỘ NÃO NHIỀU NƠ-RON (2 -> 16 -> 1)
 # ==========================================
-# Đầu vào: 2 tín hiệu (x1, x2)
-# Lớp ẩn: 2 nơ-ron (N1, N2)
-# Đầu ra: 1 nơ-ron (N3)
-
-# Khởi tạo trọng số (Weights) và ngưỡng (Bias) ngẫu nhiên
 random.seed(42)
+SO_DAU_VAO = 2
+SO_NO_RON_AN = 16  # Mở rộng lên 16 nơ-ron trung gian!
+SO_DAU_RA = 1
 
-# Trọng số từ Đầu vào -> 2 Nơ-ron ẩn
-w_in_hidden = [[random.uniform(-1, 1) for _ in range(2)] for _ in range(2)]
-b_hidden = [random.uniform(-1, 1), random.uniform(-1, 1)]
+# Ma trận trọng số (weights) và ngưỡng (bias)
+w_an = [[random.uniform(-1, 1) for _ in range(SO_NO_RON_AN)] for _ in range(SO_DAU_VAO)]
+b_an = [random.uniform(-1, 1) for _ in range(SO_NO_RON_AN)]
 
-# Trọng số từ 2 Nơ-ron ẩn -> Nơ-ron đầu ra
-w_hidden_out = [random.uniform(-1, 1), random.uniform(-1, 1)]
-b_out = random.uniform(-1, 1)
+w_ra = [random.uniform(-1, 1) for _ in range(SO_NO_RON_AN)]
+b_ra = random.uniform(-1, 1)
 
-# Tập dữ liệu huấn luyện XOR
-du_lieu = [
-    ([0, 0], 0),
-    ([0, 1], 1),
-    ([1, 0], 1),
-    ([1, 1], 0)
-]
-
-# Tốc độ học (Learning Rate)
-toc_do_hoc = 0.5
+du_lieu = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 0)]
+toc_do_hoc = 0.3
 
 # ==========================================
-# 3. VÒNG LẶP TIẾN HÓA: "FOR VÀ TIẾP TỤC"
+# 2. VÒNG LẶP HUẤN LUYỆN
 # ==========================================
-print("🚀 Đang khởi động mạng nơ-ron...")
+print(f"🚀 Đang huấn luyện Bộ não quy mô {SO_NO_RON_AN} nơ-ron...")
 
-for epoch in range(10000): # Chạy 10.000 vòng lặp tự sửa sai
-    tong_sai_so = 0
-    
+for epoch in range(10000):
     for x, y_that in du_lieu:
-        # --- BƯỚC A: LAN TRUYỀN TIẾN (NHÂN + CỘNG + BẺ CONG PHI TUYẾN) ---
-        # 1. Tính toán ở 2 nơ-ron ẩn:
-        hidden_outputs = []
-        for j in range(2):
-            # Nhân trọng số + Cộng ngưỡng: (x0*w0 + x1*w1) + b
-            tong_an = (x[0] * w_in_hidden[0][j]) + (x[1] * w_in_hidden[1][j]) + b_hidden[j]
-            # Kích hoạt phi tuyến:
-            hidden_outputs.append(sigmoid(tong_an))
+        # Lan truyền tiến qua 16 nơ-ron
+        h = []
+        for j in range(SO_NO_RON_AN):
+            tong = sum(x[i] * w_an[i][j] for i in range(SO_DAU_VAO)) + b_an[j]
+            h.append(sigmoid(tong))
             
-        # 2. Tính toán ở nơ-ron đầu ra:
-        tong_ra = (hidden_outputs[0] * w_hidden_out[0]) + (hidden_outputs[1] * w_hidden_out[1]) + b_out
+        tong_ra = sum(h[j] * w_ra[j] for j in range(SO_NO_RON_AN)) + b_ra
         du_doan = sigmoid(tong_ra)
         
-        # --- BƯỚC B: TÍNH SAI SỐ (HỖN LOẠN / NHIỄU) ---
+        # Lan truyền ngược sửa sai
         sai_so = y_that - du_doan
-        tong_sai_so += sai_so ** 2
+        delta_ra = sai_so * sigmoid_derivative(du_doan)
         
-        # --- BƯỚC C: SỬA SAI BẰNG PHÉP TRỪ (BACKPROPAGATION) ---
-        # Tính độ dốc (Gradient) ở đầu ra:
-        delta_out = sai_so * sigmoid_derivative(du_doan)
+        delta_an = [delta_ra * w_ra[j] * sigmoid_derivative(h[j]) for j in range(SO_NO_RON_AN)]
         
-        # Tính độ dốc dội ngược về 2 nơ-ron ẩn:
-        delta_hidden = [
-            delta_out * w_hidden_out[j] * sigmoid_derivative(hidden_outputs[j])
-            for j in range(2)
-        ]
-        
-        # CẬP NHẬT TRỌNG SỐ BẰNG PHÉP CỘNG/TRỪ ĐI SAI SỐ:
-        # Cập nhật tầng ra:
-        for j in range(2):
-            w_hidden_out[j] += toc_do_hoc * delta_out * hidden_outputs[j]
-        b_out += toc_do_hoc * delta_out
-        
-        # Cập nhật tầng ẩn:
-        for i in range(2):
-            for j in range(2):
-                w_in_hidden[i][j] += toc_do_hoc * delta_hidden[j] * x[i]
-            b_hidden[j] += toc_do_hoc * delta_hidden[j]
-
-    # Cứ mỗi 2000 vòng lặp thì báo cáo độ giảm sai số
-    if (epoch + 1) % 2000 == 0:
-        print(f"Vòng lặp {epoch + 1}: Tổng sai số = {tong_sai_so:.5f}")
+        # Cập nhật trọng số
+        for j in range(SO_NO_RON_AN):
+            w_ra[j] += toc_do_hoc * delta_ra * h[j]
+            for i in range(SO_DAU_VAO):
+                w_an[i][j] += toc_do_hoc * delta_an[j] * x[i]
+            b_an[j] += toc_do_hoc * delta_an[j]
+        b_ra += toc_do_hoc * delta_ra
 
 # ==========================================
-# 4. THỬ NGHIỆM KẾT QUẢ ĐÃ THẤU SUỐT
+# 3. XUẤT KÝ ỨC THÀNH TỆP JSON
 # ==========================================
-print("\n✅ KẾT QUẢ DỰ ĐOÁN SAU KHI HỌC:")
+ky_uc = {
+    "mo_hinh": "Deep-Neuron-16",
+    "so_no_ron_an": SO_NO_RON_AN,
+    "weights_tang_an": w_an,
+    "bias_tang_an": b_an,
+    "weights_tang_ra": w_ra,
+    "bias_tang_ra": b_ra
+}
+
+with open("brain_weights.json", "w", encoding="utf-8") as f:
+    json.dump(ky_uc, f, indent=4)
+
+print("💾 Đã lưu ký ức nơ-ron thành công vào tệp: brain_weights.json")
+
+# Tự kiểm tra kết quả
 for x, y_that in du_lieu:
-    # Chạy thử 1 lần:
-    h = [sigmoid((x[0]*w_in_hidden[0][j]) + (x[1]*w_in_hidden[1][j]) + b_hidden[j]) for j in range(2)]
-    ket_qua = sigmoid((h[0]*w_hidden_out[0]) + (h[1]*w_hidden_out[1]) + b_out)
-    print(f"Đầu vào: {x} -> Thực tế: {y_that} -> Mạng nơ-ron đoán: {ket_qua:.4f} (Làm tròn: {round(ket_qua)})")
+    h = [sigmoid(sum(x[i] * w_an[i][j] for i in range(SO_DAU_VAO)) + b_an[j]) for j in range(SO_NO_RON_AN)]
+    ket_qua = sigmoid(sum(h[j] * w_ra[j] for j in range(SO_NO_RON_AN)) + b_ra)
+    print(f"Đầu vào: {x} -> Dự đoán: {ket_qua:.4f} (Chuẩn: {round(ket_qua)})")
