@@ -1,0 +1,20 @@
+name: Tự động chạy mạng Nơ-ron
+
+on:
+  push:              # Cứ mỗi lần bạn bấm lưu/sửa code là máy chủ tự chạy
+  workflow_dispatch: # Tạo thêm nút bấm "Chạy bằng tay" để bạn bấm thử bất kỳ lúc nào
+
+jobs:
+  chay-ai:
+    runs-on: ubuntu-latest  # Mượn một máy tính Ubuntu của GitHub
+    steps:
+      - name: Lấy mã nguồn về máy
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Ra lệnh cho máy ảo chạy Nơ-ron
+        run: python xor_network.py
