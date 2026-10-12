@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest  # Mượn một máy tính Ubuntu của GitHub
     steps:
       - name: Lấy mã nguồn về máy
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Cài đặt Python
         uses: actions/setup-python@v5
