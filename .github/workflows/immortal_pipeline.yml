@@ -1,27 +1,34 @@
-name: He Thong No-ron Bat Tu (3 trong 1)
+name: Tự động chạy và Lưu ký ức Nơ-ron
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Cho phép bấm chạy thủ công
+  workflow_dispatch:
+
+# CẤP QUYỀN GHI CHO MÁY CHỦ GITHUB
+permissions:
+  contents: write
 
 jobs:
-  train-neuron:
+  chay-va-luu-ky-uc:
     runs-on: ubuntu-latest
-    
-    # [GIẢI PHÁP 3 - DOCKER]: Toàn bộ lệnh sẽ chạy bên trong chiếc hộp Python này
-    # Cách ly 100% khỏi môi trường máy chủ bên ngoài của GitHub
-    container:
-      image: python:3.10-slim
-
     steps:
-      # [GIẢI PHÁP 2 - NATIVE SHELL]: Dùng lệnh Linux và Git gốc
-      # Hoàn toàn không dùng Action trung gian của Node.js, miễn nhiễm với việc đổi Node
-      - name: Cai dat Git va keo ma nguon goc
-        run: |
-          apt-get update && apt-get install -y git
-          git clone --depth 1 https://github.com/${{ github.repository }}.git .
+      - name: Kéo mã nguồn về máy chủ
+        uses: actions/checkout@v4
 
-      - name: Huan luyen mang No-ron
+      - name: Thiết lập Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Chạy nơ-ron và xuất ký ức
+        run: python xor_network.py
+
+      - name: Tự động lưu tệp ký ức ngược lại kho GitHub
         run: |
-          python xor_network.py
+          git config --global user.name "Neuron-Bot"
+          git config --global user.email "bot@neuron.ai"
+          git add brain_weights.json
+          # [skip ci] để tránh việc bot lưu file lại kích hoạt chạy tiếp vô tận
+          git commit -m "🧠 [AI Auto] Tự động cập nhật ký ức nơ-ron [skip ci]" || echo "Ký ức không có thay đổi"
+          git push
