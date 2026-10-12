@@ -1,0 +1,51 @@
+name: AI Tự Động Trả Lời Issue
+
+on:
+  issues:
+    types: [opened] # Bắt sự kiện mỗi khi có ai mở một Issue mới
+
+# Cấp quyền để Bot được phép viết bình luận (comment) vào Issue
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  tra-loi-nguoi-dung:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kéo mã nguồn và tệp ký ức
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Chạy nơ-ron để trả lời tiêu đề Issue
+        id: run_ai
+        run: |
+          # Lấy tiêu đề của Issue (ví dụ người dùng gõ "1 0")
+          INPUT="${{ github.event.issue.title }}"
+          echo "Người dùng hỏi: $INPUT"
+          
+          # Cho Python nạp brain_weights.json và suy luận
+          OUTPUT=$(python predict.py $INPUT)
+          
+          # Lưu kết quả lại để bước sau dùng
+          echo "KET_QUA<<EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Bot tự động viết bình luận trả lời
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.run_ai.outputs.KET_QUA }}`;
+            const commentBody = `### 🤖 Phản hồi tự động từ Neuron-Bot\n\nChào bạn! Mạng nơ-ron đã nạp ký ức từ \`brain_weights.json\` và phân tích câu hỏi của bạn:\n\n\`\`\`text\n${output}\n\`\`\`\n\n*(Hệ thống được tính toán tự động bằng mạng nơ-ron thuần Python trên GitHub Actions)*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
