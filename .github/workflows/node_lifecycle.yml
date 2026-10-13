@@ -1,0 +1,38 @@
+name: Vòng Đời Nơ-ron Tự Trị
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kéo mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # CẢM ỨNG MÔI TRƯỜNG: Tự tìm kiếm Mắt tương ứng theo người sở hữu repo
+      - name: Lắng nghe tín hiệu Mắt
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          curl -s -f "https://raw.githubusercontent.com/$OWNER/retina/main/synapse_forward.json" -o synapse_forward.json || echo "Môi trường tĩnh, không có tín hiệu mới."
+
+      - name: Vận hành Mạng Lưới Nơ-ron
+        run: python brain_mesh.py
+
+      - name: Lưu vết tích tiến hóa
+        run: |
+          git config --global user.name "Neuron-Mesh-Bot"
+          git config --global user.email "bot@neuron.mesh"
+          git add brain_weights.json synapse_backward.json 2>/dev/null || true
+          git commit -m "🧬 [Tiến Hóa] Cập nhật trạng thái mạng nơ-ron [skip ci]" || echo "Không có thay đổi mới"
+          git push
