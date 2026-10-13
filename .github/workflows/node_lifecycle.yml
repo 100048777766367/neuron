@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Kéo mã nguồn nút mạng
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Cài đặt môi trường Python
         uses: actions/setup-python@v7
