@@ -1,5 +1,5 @@
 # Sử dụng nền tảng Python 3.10 siêu nhẹ và bảo mật
-FROM python:3.10-slim
+FROM python:3.14-slim
 
 # Thiết lập thư mục làm việc bên trong chiếc hộp
 WORKDIR /app
