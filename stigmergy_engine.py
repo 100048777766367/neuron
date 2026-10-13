@@ -39,7 +39,7 @@ class StigmergyEngine:
             }, f, indent=4)
 
     # 3. TRÁI TIM BẤT ĐỒNG BỘ: NGỦ DẬY -> KIỂM TRA MÔI TRƯỜNG -> XỬ LÝ TIẾP
-    def process_inbox(self, signal_file="synapse_forward.json"):
+    def process_inbox(self, signal_file="verified_synapse.json"):
         if not os.path.exists(signal_file):
             print("🍃 [MÔI TRƯỜNG TĨNH] Không tìm thấy tệp tín hiệu nào trong Inbox. Tiếp tục ngủ.")
             return
