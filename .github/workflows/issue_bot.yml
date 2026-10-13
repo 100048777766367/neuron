@@ -37,7 +37,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Bot tự động viết bình luận phản hồi
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const output = `${{ steps.run_ai.outputs.KET_QUA }}`;
