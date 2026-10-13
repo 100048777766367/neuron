@@ -2,9 +2,8 @@ name: AI Tự Động Trả Lời Issue
 
 on:
   issues:
-    types: [opened] # Bắt sự kiện mỗi khi có ai mở Issue mới
+    types: [opened]
 
-# CẤP QUYỀN VIẾT BÌNH LUẬN VÀ ĐỌC MÃ NGUỒN
 permissions:
   issues: write
   contents: read
@@ -24,26 +23,27 @@ jobs:
       - name: Chạy suy luận từ Bầy Nơ-ron
         id: run_ai
         run: |
-          # Lấy tiêu đề của Issue (ví dụ: "0 1" hoặc "[1, 0]")
           INPUT="${{ github.event.issue.title }}"
           echo "Câu hỏi nhận được: $INPUT"
           
-          # Cho predict.py đọc trực tiếp từ synapses/ và suy luận
           OUTPUT=$(python predict.py "$INPUT")
           
-          # Đưa kết quả vào biến đầu ra của GitHub Action
+          # Lưu an toàn vào biến đầu ra
           echo "KET_QUA<<EOF" >> $GITHUB_OUTPUT
           echo "$OUTPUT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Bot tự động viết bình luận phản hồi
         uses: actions/github-script@v9
+        env:
+          # TRUYỀN QUA BIẾN MÔI TRƯỜNG ĐỂ CHỐNG VỠ CÚ PHÁP XUỐNG DÒNG
+          AI_OUTPUT: ${{ steps.run_ai.outputs.KET_QUA }}
         with:
           script: |
-            const output = `${{ steps.run_ai.outputs.KET_QUA }}`;
+            const output = process.env.AI_OUTPUT;
             const commentBody = `### 🤖 Phản hồi tự động từ Bầy Nơ-ron (Swarm-Bot)\n\nChào bạn! Mạng lưới nơ-ron phân tán đã nạp các túi ký ức từ \`synapses/\` và đưa ra phán quyết:\n\n\`\`\`text\n${output}\n\`\`\`\n\n*(Hệ thống vận hành bằng kiến trúc nơ-ron phân tán cực hạn, tự động hóa 100% trên GitHub Actions)*`;
             
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
