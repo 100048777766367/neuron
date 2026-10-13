@@ -11,7 +11,7 @@ class BrainMesh:
         self.hidden_layer = []
         self.output_neuron = None
         
-        # TỰ ĐỘNG KHỞI TẠO HOẶC NẠP KÝ ỨC CŨ
+        # TỰ ĐỘNG KIỂM TRA VÀ NẠP KÝ ỨC
         if os.path.exists(STATE_FILE):
             self.load_mesh()
         else:
@@ -34,18 +34,15 @@ class BrainMesh:
         
         for _ in range(epochs):
             for x, y_that in data:
-                # Lan truyền qua từng nơ-ron nguyên tử
                 h = [neuron.forward(x) for neuron in self.hidden_layer]
                 out = self.output_neuron.forward(h)
                 
-                # Tính sai số và đạo hàm
                 delta_out = (y_that - out) * sigmoid_derivative(out)
                 deltas_h = [
                     delta_out * self.output_neuron.weights[j] * sigmoid_derivative(h[j])
                     for j in range(self.n_hidden)
                 ]
                 
-                # Từng nơ-ron tự cập nhật độc lập
                 self.output_neuron.backward(delta_out, lr)
                 for j, neuron in enumerate(self.hidden_layer):
                     neuron.backward(deltas_h[j], lr)
@@ -53,7 +50,7 @@ class BrainMesh:
         self.save_mesh()
         print("✅ Mạng lưới đã hoàn thành bài học nền tảng!")
 
-    # 2. SUY LUẬN SIÊU TỐC
+    # 2. SUY LUẬN
     def predict(self, x):
         h = [neuron.forward(x) for neuron in self.hidden_layer]
         return self.output_neuron.forward(h)
@@ -77,20 +74,17 @@ class BrainMesh:
             for j in range(self.n_hidden)
         ]
 
-        # Tính đạo hàm để bắn ngược lại môi trường
         grad_to_eye = [
             sum(deltas_h[j] * self.hidden_layer[j].weights[0] for j in range(self.n_hidden)),
             sum(deltas_h[j] * self.hidden_layer[j].weights[1] for j in range(self.n_hidden))
         ]
 
-        # Tự cập nhật
         self.output_neuron.backward(delta_out, lr)
         for j, neuron in enumerate(self.hidden_layer):
             neuron.backward(deltas_h[j], lr)
 
         self.save_mesh()
 
-        # Để lại vệt đạo hàm ra môi trường
         with open("synapse_backward.json", "w") as f:
             json.dump({"gradients_for_eye": grad_to_eye, "loss": round((target_y - pred)**2, 5)}, f, indent=4)
         print(f"⚡ [XUNG ĐẠO HÀM] Đã gửi vệt đạo hàm cho Mắt: {grad_to_eye}")
@@ -103,16 +97,31 @@ class BrainMesh:
         with open(STATE_FILE, "w") as f:
             json.dump(state, f, indent=4)
 
+    # ==============================================================
+    # 4. HÀM TỰ CHỮA LÀNH (TỰ ĐỘNG NÂNG CẤP ĐỊNH DẠNG CŨ KHÔNG BỊ CRASH)
+    # ==============================================================
     def load_mesh(self):
-        with open(STATE_FILE, "r") as f:
-            state = json.load(f)
-        self.hidden_layer = [
-            AtomicNeuron(n["id"], self.n_in, n["weights"], n["bias"])
-            for n in state["hidden_neurons"]
-        ]
-        out_state = state["output_neuron"]
-        self.output_neuron = AtomicNeuron(out_state["id"], self.n_hidden, out_state["weights"], out_state["bias"])
-        print(f"🧠 [KÝ ỨC] Đã nạp thành công mạng lưới {len(self.hidden_layer)} nơ-ron nguyên tử.")
+        try:
+            with open(STATE_FILE, "r") as f:
+                state = json.load(f)
+            
+            # Kiểm tra xem có đúng định dạng nguyên tử mới không
+            if "hidden_neurons" not in state or "output_neuron" not in state:
+                raise ValueError("Tệp ký ức mang định dạng cũ, cần khởi sinh lại!")
+
+            self.hidden_layer = [
+                AtomicNeuron(n["id"], self.n_in, n["weights"], n["bias"])
+                for n in state["hidden_neurons"]
+            ]
+            out_state = state["output_neuron"]
+            self.output_neuron = AtomicNeuron(out_state["id"], self.n_hidden, out_state["weights"], out_state["bias"])
+            print(f"🧠 [KÝ ỨC] Đã nạp thành công mạng lưới {len(self.hidden_layer)} nơ-ron nguyên tử.")
+            
+        except Exception as e:
+            print(f"⚠️ [CẢNH BÁO KÝ ỨC]: {str(e)}")
+            print("🌱 [TỰ CHỮA LÀNH] Tự động thiết lập lại mạng nơ-ron nguyên tử và học lại từ đầu...")
+            self.init_mesh()
+            self.train_baseline()
 
 if __name__ == "__main__":
     mesh = BrainMesh()
