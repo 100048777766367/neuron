@@ -1,31 +1,57 @@
-import math
-import json
 import sys
+import re
+from brain_mesh import BrainMesh
 
-def sigmoid(x):
-    return 1.0 / (1.0 + math.exp(-max(min(x, 500), -500)))
+def parse_inputs(args):
+    """
+    Tự động xử lý mọi định dạng đầu vào:
+    Hỗ trợ: "1 0", "[1, 0]", "1,0", "0.8 0.2", v.v.
+    """
+    if len(args) <= 1:
+        # Mặc định nếu không truyền tham số nào
+        return [1.0, 0.0]
+    
+    # Gộp toàn bộ tham số lại thành 1 chuỗi
+    raw_str = " ".join(args[1:])
+    
+    # Dùng Regular Expression lọc lấy tất cả các số (kể cả số thập phân âm/dương)
+    numbers = re.findall(r"[-+]?(?:\d*\.\d+|\d+)", raw_str)
+    
+    if len(numbers) < 2:
+        raise ValueError(f"Cần tối thiểu 2 số đầu vào, nhưng chỉ nhận được: {numbers}")
+        
+    return [float(numbers[0]), float(numbers[1])]
 
-# 1. NẠP KÝ ỨC
-with open("brain_weights.json", "r", encoding="utf-8") as f:
-    ky_uc = json.load(f)
+def main():
+    try:
+        # 1. NẠP MẠNG LƯỚI NƠ-RON NGUYÊN TỬ
+        mesh = BrainMesh()
+        
+        # 2. XỬ LÝ ĐẦU VÀO TỪ DÒNG LỆNH
+        inputs = parse_inputs(sys.argv)
+        x1, x2 = inputs[0], inputs[1]
 
-w_an = ky_uc["weights_tang_an"]
-b_an = ky_uc["bias_tang_an"]
-w_ra = ky_uc["weights_tang_ra"]
-b_ra = ky_uc["bias_tang_ra"]
-so_an = ky_uc["so_no_ron_an"]
+        # 3. SUY LUẬN SIÊU TỐC
+        prob = mesh.predict([x1, x2])
+        prediction = 1 if prob >= 0.5 else 0
 
-# 2. ĐỌC DỮ LIỆU ĐẦU VÀO TỪ DÒNG LỆNH
-# Mặc định là [1, 0] nếu người dùng không truyền gì
-x1 = float(sys.argv[1]) if len(sys.argv) > 1 else 1.0
-x2 = float(sys.argv[2]) if len(sys.argv) > 2 else 0.0
+        # Tính độ tin cậy thực tế (Confidence score)
+        if prediction == 1:
+            confidence = prob * 100.0
+        else:
+            confidence = (1.0 - prob) * 100.0
 
-# 3. SUY LUẬN
-h = [sigmoid((x1 * w_an[0][j]) + (x2 * w_an[1][j]) + b_an[j]) for j in range(so_an)]
-tong_ra = sum(h[j] * w_ra[j] for j in range(so_an)) + b_ra
-xac_suat = sigmoid(tong_ra)
-ket_qua = round(xac_suat)
+        # 4. XUẤT KẾT QUẢ ĐỊNH DẠNG ĐẸP
+        print("-" * 40)
+        print(f"🎯 ĐẦU VÀO     : [{x1}, {x2}]")
+        print(f"🔮 DỰ ĐOÁN     : {prediction}")
+        print(f"📊 ĐỘ TIN CẬY  : {confidence:.2f}% (Xác suất gốc: {prob:.4f})")
+        print("-" * 40)
 
-# In kết quả theo định dạng đẹp để Bot lấy gửi cho người hỏi
-print(f"Đầu vào: [{x1}, {x2}]")
-print(f"Dự đoán: {ket_qua} (Độ tin cậy: {xac_suat*100:.2f}%)")
+    except Exception as e:
+        print(f"❌ LỖI SUY LUẬN: {str(e)}")
+        print("💡 Hướng dẫn: Nhập đúng 2 con số, ví dụ: python predict.py 1 0")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
