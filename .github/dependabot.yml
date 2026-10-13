@@ -1,15 +1,20 @@
-# [GIẢI PHÁP 1 - TỰ ĐỘNG HÓA TIẾN HÓA]:
-# Robot định kỳ kiểm tra các công nghệ mới và tự động cập nhật
+# ==============================================================
+# TỰ ĐỘNG HÓA TIẾN HÓA & ĐỒNG BỘ HẠ TẦNG (CHỐNG LỆCH PHA)
+# ==============================================================
 version: 2
 updates:
-  # Tự động canh chừng các bản cập nhật của GitHub Actions
+  # 1. Tự động đồng bộ các phiên bản GitHub Actions (chống đứt gãy Node 20, Node 24...)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "🤖 [Hạ Tầng CI/CD]"
 
-  # Tự động canh chừng các bản vá bảo mật của chiếc hộp Docker Python
+  # 2. Tự động đồng bộ các bản vá bảo mật Docker (khi đóng gói nơ-ron vào container)
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "🐳 [Hạ Tầng Docker]"
