@@ -1,0 +1,89 @@
+{
+    "level_1_architecture": {
+        "type": "BODHI_SOVEREIGN_NODE",
+        "status": "\ud83d\udfe2 \u1ed4N \u0110\u1ecaNH CHU\u1ea8N M\u1ef0C"
+    },
+    "level_2_directories": {
+        "stable_invariants": [
+            "organs",
+            ".github",
+            "cells",
+            "cells/__pycache__"
+        ],
+        "volatile_breeding": [
+            ".git",
+            "receptors",
+            "dist",
+            "__pycache__",
+            "synapses",
+            "actuators",
+            "cortex",
+            "receptors/__pycache__"
+        ]
+    },
+    "level_3_files": {
+        "stable_anchors": [
+            "contract.json",
+            "Dockerfile"
+        ],
+        "volatile_mutants": [
+            "README.md",
+            "stigmergy_engine.py",
+            "synapse_backward.json",
+            "predict.py",
+            "receptors/cascade_receptor.py",
+            "receptors/contract_receptor.py",
+            "receptors/mesh_receptor.py",
+            "synapses/h_14.json",
+            "synapses/h_6.json",
+            "synapses/h_10.json",
+            "synapses/h_8.json",
+            "synapses/h_1.json",
+            "synapses/h_12.json",
+            "synapses/h_0.json",
+            "synapses/dna_health_report.json",
+            "synapses/.gitkeep",
+            "synapses/h_5.json",
+            "synapses/h_7.json",
+            "synapses/h_13.json",
+            "synapses/h_9.json",
+            "synapses/h_11.json",
+            "synapses/h_3.json",
+            "synapses/out.json",
+            "synapses/h_2.json",
+            "synapses/stigmergy_state.json",
+            "synapses/h_15.json",
+            "synapses/h_4.json",
+            "cells/base_neuron.py"
+        ]
+    },
+    "level_4_classes": {
+        "stable_contracts": [],
+        "volatile_evolving": [
+            "stigmergy_engine.py::StigmergyEngine",
+            "cells/base_neuron.py::CellNeuron"
+        ]
+    },
+    "level_5_functions": {
+        "stable_pure": [
+            "stigmergy_engine.py -> __init__()",
+            "stigmergy_engine.py -> get_last_processed_id()",
+            "stigmergy_engine.py -> process_inbox()",
+            "receptors/cascade_receptor.py -> try_fetch()",
+            "receptors/cascade_receptor.py -> main()",
+            "receptors/contract_receptor.py -> verify_and_purify()",
+            "receptors/mesh_receptor.py -> search_global_mesh()",
+            "cells/base_neuron.py -> sigmoid()",
+            "cells/base_neuron.py -> sigmoid_derivative()",
+            "cells/base_neuron.py -> load_self()",
+            "cells/base_neuron.py -> forward()",
+            "cells/base_neuron.py -> save_self()"
+        ],
+        "volatile_experimental": [
+            "stigmergy_engine.py -> mark_processed()",
+            "predict.py -> main()",
+            "cells/base_neuron.py -> __init__()",
+            "cells/base_neuron.py -> backward()"
+        ]
+    }
+}

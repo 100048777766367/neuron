@@ -1,0 +1,14 @@
+{
+    "stamp_id": "STAMP-NEURON",
+    "lineage": {
+        "root_ancestor": "neuron",
+        "branch": "core",
+        "generation": "g0",
+        "variant_seed": "00"
+    },
+    "provenance": {
+        "dna_reputation_score": "100/100",
+        "dynasty_honor_points": 20,
+        "operator": "BITWISE_XOR_INVARIANT"
+    }
+}

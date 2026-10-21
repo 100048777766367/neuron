@@ -1,0 +1,8 @@
+{
+    "repo": "neuron",
+    "ancestor": "neuron",
+    "dna_score": "100/100",
+    "dynasty_honor": 20,
+    "tested_files": 6,
+    "defects": []
+}

@@ -1,0 +1,38 @@
+name: Neuron Sovereign Lifecycle
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+  schedule:
+    - cron: '30 */4 * * *'
+permissions:
+  contents: write
+jobs:
+  run-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kéo mã nguồn nút mạng
+        run: git clone --depth 1 https://github.com/${{ github.repository }}.git .
+      - name: Thiết lập môi trường Python 3.14
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - name: Vận hành Hạt Nhân Tự Trị
+        env:
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          sh -c "if [ -f kernel.py ]; then python -B kernel.py; else python -B engine.py; fi"
+      - name: Đồng bộ biến cố lên Git
+        run: |
+          git config --global user.name "neuron-Bot"
+          git config --global user.email "bot@neuron.node"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          TARGET_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          [ "$TARGET_BRANCH" = "HEAD" ] || [ -z "$TARGET_BRANCH" ] && TARGET_BRANCH="main"
+          git fetch origin "$TARGET_BRANCH"
+          git reset origin/"$TARGET_BRANCH"
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "🌱 [Neuron] Đồng bộ trạng thái tự trị #(1+N) [skip ci]"
+            git push origin "$TARGET_BRANCH"
+          fi

@@ -1,0 +1,9 @@
+{
+    "contract_id": "bodhi.neuron.v1",
+    "identity": "100048777766367/neuron",
+    "ancestor": "neuron",
+    "branch": "core",
+    "generation": 0,
+    "variant": "00",
+    "status": "HEALTHY"
+}
