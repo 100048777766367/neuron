@@ -1,7 +1,7 @@
 {
     "contract": "bodhi.contract.v1",
     "identity": "100048777766367/neuron",
-    "epoch": 48,
-    "cid": "36379995d8705f08b8018d04c91794f4154573a85d9adb9b180404050f299395ff87bbad6175f4f6316c35a99933c58ab75e8b5cc4f8c0c7d4dfb8248dad09f2",
+    "epoch": 49,
+    "cid": "d1b4f5a0cdf612303305d459b28fe7af8e9831622d7d6db9a188a2013fde8b7d58ec74a177d4e0dc79b4f1cf9ec6a7fa6b3da9cf8449f0d954be1ac608da75c2",
     "proof": "XOR_INVARIANT_VALID"
 }
