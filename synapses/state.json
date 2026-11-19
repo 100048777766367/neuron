@@ -1,7 +1,7 @@
 {
-    "generation_epoch": 89,
-    "last_timestamp": 1795022751,
-    "quantum_cid": "90029322c09a271056cda32150373470a6cfa3c4b556a5c43ea6dece4afcfce32aee02003ab1d8158bf4784c89339a12b97c57fde2bd5a95dd584dde4f274eff",
-    "state_vector_hex": "0x90023988",
+    "generation_epoch": 90,
+    "last_timestamp": 1795053403,
+    "quantum_cid": "e938c2faba1d5858ecbc43638ea2645e442865e5a60e3a7db55a16e1a8f412adb206c24eede468234e731e35f82da0d0951b173ebd60d46920028dbf9ae1043f",
+    "state_vector_hex": "0xe9386850",
     "status": "synchronized"
 }
